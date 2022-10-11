@@ -50,8 +50,8 @@ int main(int argc, char *argv[]) {
 	vector<short> samples(FRAMES_BUFFER_SIZE * sfhOG.channels());
 	while((nFrames = sfhOG.readf(samples.data(), FRAMES_BUFFER_SIZE))){
 		samples.resize(nFrames * sfhOG.channels());
-        for(auto s : samples){
-        }
+        /*for(auto s : samples){
+        }*/
 	}
 
 	return 0;
