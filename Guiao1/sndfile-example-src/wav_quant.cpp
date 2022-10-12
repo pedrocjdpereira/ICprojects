@@ -5,7 +5,7 @@
 
 using namespace std;
 
-constexpr size_t FRAMES_BUFFER_SIZE = 65536; // Buffer for reading/writing frames
+constexpr size_t FRAMES_BUFFER_SIZE = 1; // Buffer for reading/writing frames
 
 int main(int argc, char *argv[]) {
 
@@ -37,14 +37,15 @@ int main(int argc, char *argv[]) {
 
 	SndfileHandle sfhOut { "quant.wav", SFM_WRITE, sfhIn.format(),
 	  sfhIn.channels(), sfhIn.samplerate() };
+	
 	if(sfhOut.error()) {
 		cerr << "Error: invalid output file\n";
 		return 1;
     }
 
-	int Amax = 1, Amin = -1;
+	/*short Amax = 1, Amin = -1;
     int numlvls = 8;
-    double delta = (Amax-Amin)/pow(numlvls, 2);
+    double delta = (Amax-Amin)/pow(2, numlvls);*/
 
 	size_t nFrames;
 	vector<short> samples(FRAMES_BUFFER_SIZE * sfhIn.channels());
@@ -52,18 +53,20 @@ int main(int argc, char *argv[]) {
 		samples.resize(nFrames * sfhIn.channels());
 		vector<short> newsamples;
         for(short s : samples){
-			printf("\ns = %hu", s);
-			if (quant_option == 0){
+			printf("\ns = %hi", s);
+			/*if (quant_option == 0){
 				s = delta * (floor((s/delta)) + 0.5);
 			}
 			else{
 				s = delta * floor((s/delta) + 0.5);
-			}
-			printf("\nnew value = %hu", s);
+			}*/
+			s = s & 0x7fff;
+			printf("\nnew value = %hi", s);
 			newsamples.push_back(s);
         }
 		sfhOut.writef(newsamples.data(), nFrames);
 	}
+	//printf("\nmax = %hi, min = %hi", Amax, Amin);
 	return 0;
 }
 
