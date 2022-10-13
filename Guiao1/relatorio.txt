@@ -1,5 +1,8 @@
-2. Simples alterações no metodo update da classe wav_hist.h de modo a preencher o counts 
-com mais duas linhas de informação
+Guiao1:
 
-3. wav_quant - basicamente o wav_cp só que divide as samples pelo div_factor (= 2^quant_factor)
-antes de copiar para o novo ficheiro quant.wav
+2. Simples alterações no metodo update da classe wav_hist.h de modo a preencher o counts 
+com mais duas linhas de informação.
+
+3. wav_quant - percorre cada sample de 16 bits e reduz para 16-x bits. 
+Para fazer isto, são efetuados x shift rights e os x bits mais significativos 
+são colocados a zero.

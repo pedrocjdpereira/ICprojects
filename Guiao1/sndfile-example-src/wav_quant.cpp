@@ -5,12 +5,12 @@
 
 using namespace std;
 
-constexpr size_t FRAMES_BUFFER_SIZE = 1; // Buffer for reading/writing frames
+constexpr size_t FRAMES_BUFFER_SIZE = 65535; // Buffer for reading/writing frames
 
 int main(int argc, char *argv[]) {
 
 	if(argc < 3) {
-		cerr << "Usage: wav_quant wavFileIn quant_option\nQuantization option:\n0 - Mid-riser\n1 - Mid-tread\n";
+		cerr << "Usage: wav_quant wavFileIn noOfLostBits\n";
 		return 1;
 	}
 	SndfileHandle sfhIn { argv[argc-2] };
@@ -29,9 +29,9 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-    int quant_option = stoi(argv[argc-1]);
-	if(quant_option < 0 || quant_option > 1) {
-		cerr << "Error: invalid quantization option\n";
+    int lost_bits = stoi(argv[argc-1]);
+	if(lost_bits < 0 || lost_bits > 16) {
+		cerr << "Error: invalid number of bits lost\n";
 		return 1;
     }
 
@@ -43,30 +43,24 @@ int main(int argc, char *argv[]) {
 		return 1;
     }
 
-	/*short Amax = 1, Amin = -1;
-    int numlvls = 8;
-    double delta = (Amax-Amin)/pow(2, numlvls);*/
-
+	int NoBitsIn = 16;
+	int NoBitsOut = NoBitsIn-lost_bits;
+	int y = 0;
+	for(int i = NoBitsIn-1; i >= NoBitsOut; i--){
+		y = y + pow(2, i);
+	}
+	y = pow(2, NoBitsIn) - y - 1;
 	size_t nFrames;
 	vector<short> samples(FRAMES_BUFFER_SIZE * sfhIn.channels());
 	while((nFrames = sfhIn.readf(samples.data(), FRAMES_BUFFER_SIZE))){
 		samples.resize(nFrames * sfhIn.channels());
 		vector<short> newsamples;
         for(short s : samples){
-			printf("\ns = %hi", s);
-			/*if (quant_option == 0){
-				s = delta * (floor((s/delta)) + 0.5);
-			}
-			else{
-				s = delta * floor((s/delta) + 0.5);
-			}*/
-			s = s & 0x7fff;
-			printf("\nnew value = %hi", s);
+			s = y & (s >> lost_bits);
 			newsamples.push_back(s);
         }
 		sfhOut.writef(newsamples.data(), nFrames);
 	}
-	//printf("\nmax = %hi, min = %hi", Amax, Amin);
 	return 0;
 }
 
