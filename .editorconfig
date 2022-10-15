@@ -1,0 +1,18 @@
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+[*.{c++,cc,cpp,cxx,h,h++,hh,hpp,hxx,inl,ipp,tlh,tli}]
+charset = utf-8
+indent_style = tab
+indent_size = 4
+cpp_indent_case_contents_when_block = true
+cpp_new_line_before_open_brace_namespace = same_line
+
+[Makefile]
+indent_style = tab
+ident_size = 4
