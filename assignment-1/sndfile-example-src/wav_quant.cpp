@@ -48,10 +48,10 @@ int main(int argc, char *argv[]) {
     }
 	
 	// Number of bits representing each sample after reduction
-	unsigned short noBitsOut = 16-reduceBits;
+	//unsigned short noBitsOut = 16-reduceBits;
 
 	// highest possible number with noBitsOut bits
-	unsigned short maxOutNum = (1 << noBitsOut) - 1;
+	//unsigned short maxOutNum = (1 << noBitsOut) - 1;
 
 	size_t nFrames;
 	vector<short> samples(FRAMES_BUFFER_SIZE * sfhIn.channels());
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
         for(short s : samples)
 			// reduce number of bits used to represent each audio sample
 			// (ignore the num(reduceBits) least significant bits)
-			nsamples.push_back(maxOutNum & (s >> reduceBits));
+			nsamples.push_back(s >> reduceBits);
 		
 		sfhOut.writef(nsamples.data(), nFrames);
 	}
