@@ -10,10 +10,10 @@ constexpr size_t FRAMES_BUFFER_SIZE = 65535; // Buffer for reading/writing frame
 int main(int argc, char *argv[]) {
 
 	if(argc < 3) {
-		cerr << "Usage: wav_quant wavFileIn noOfLostBits\n";
+		cerr << "Usage: wav_quant <input file> <output file> <number of bits to reduce>\n";
 		return 1;
 	}
-	SndfileHandle sfhIn { argv[argc-2] };
+	SndfileHandle sfhIn { argv[argc-3] };
 	if(sfhIn.error()) {
 		cerr << "Error: invalid input file\n";
 		return 1;
@@ -29,38 +29,44 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-    int lost_bits = stoi(argv[argc-1]);
-	if(lost_bits < 0 || lost_bits > 16) {
-		cerr << "Error: invalid number of bits lost\n";
-		return 1;
-    }
-
-	SndfileHandle sfhOut { "quant.wav", SFM_WRITE, sfhIn.format(),
+	SndfileHandle sfhOut {argv[argc-2], SFM_WRITE, sfhIn.format(),
 	  sfhIn.channels(), sfhIn.samplerate() };
-	
 	if(sfhOut.error()) {
 		cerr << "Error: invalid output file\n";
 		return 1;
-    }
-
-	int NoBitsIn = 16;
-	int NoBitsOut = NoBitsIn-lost_bits;
-	int y = 0;
-	for(int i = NoBitsIn-1; i >= NoBitsOut; i--){
-		y = y + pow(2, i);
 	}
-	y = pow(2, NoBitsIn) - y - 1;
+
+	if(!isdigit(*argv[argc-1])) {
+		cerr << "Error: number of bits must be an integer\n";
+		return 1;
+	}
+
+    unsigned short reduceBits = stoi(argv[argc-1]);
+	if(reduceBits > 16) {
+		cerr << "Error: invalid number of bits\n";
+		return 1;
+    }
+	
+	// Number of bits representing each sample after reduction
+	unsigned short noBitsOut = 16-reduceBits;
+
+	// highest possible number with noBitsOut bits
+	unsigned short maxOutNum = (1 << noBitsOut) - 1;
+
 	size_t nFrames;
 	vector<short> samples(FRAMES_BUFFER_SIZE * sfhIn.channels());
 	while((nFrames = sfhIn.readf(samples.data(), FRAMES_BUFFER_SIZE))){
 		samples.resize(nFrames * sfhIn.channels());
-		vector<short> newsamples;
-        for(short s : samples){
-			s = y & (s >> lost_bits);
-			newsamples.push_back(s);
-        }
-		sfhOut.writef(newsamples.data(), nFrames);
+		
+		vector<short> nsamples;
+        for(short s : samples)
+			// reduce number of bits used to represent each audio sample
+			// (ignore the num(reduceBits) least significant bits)
+			nsamples.push_back(maxOutNum & (s >> reduceBits));
+		
+		sfhOut.writef(nsamples.data(), nFrames);
 	}
+
 	return 0;
 }
 
