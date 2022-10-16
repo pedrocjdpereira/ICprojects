@@ -53,8 +53,18 @@ class WAVHist {
 
 		// Store histogram of the requested channel
 		std::ofstream outfile;
-		outfile.open(hist_path + "hist_channel_" + std::to_string(channel) + ".dat");		
+		outfile.open(hist_path + "hist_" + std::to_string(channel) + "_channel.dat");		
 		for(auto [value, counter] : counts[channel]){
+			// Output expected values as if running without flags
+			std::cout << value << '\t' << counter << '\n';
+			// Store in file
+			outfile << value << ',' << counter << '\n';
+		}
+		outfile.close();
+		
+		// Store histogram of the other channel
+		outfile.open(hist_path + "hist_" + std::to_string(channel==0) + "_channel.dat");
+		for(auto [value, counter] : counts[channel==0]){
 			outfile << value << ',' << counter << '\n';
 		}
 		outfile.close();

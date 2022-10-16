@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	int channel { stoi(argv[argc-1]) };
-	if(channel >= sndFile.channels() + 2) {
+	if(channel >= sndFile.channels()) {
 		cerr << "Error: invalid channel requested\n";
 		return 1;
 	}
