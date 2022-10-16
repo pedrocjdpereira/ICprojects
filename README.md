@@ -3,9 +3,9 @@ Programming assignments made for the IC course.
 ## Group members
 | Nmec | Name | Github |
 | :--: | :--- | :----- |
-| XXXXX | David Bicho | @david13122000 |
-| XXXXX | Pedro Pereira | @pedrocjdpereira |
-| 97596 | Diogo Jesus | @diogopjesus |
+| XXXXX | David Bicho | [@david13122000](https://github.com/david13122000) |
+| XXXXX | Pedro Pereira | [@pedrocjdpereira](https://github.com/pedrocjdpereira) |
+| 97596 | Diogo Jesus | [@diogopjesus](https://github.com/diogopjesus) |
 
 
 ## Directory description
