@@ -5,7 +5,7 @@
 
 using namespace std;
 
-constexpr size_t FRAMES_BUFFER_SIZE = 65535; // Buffer for reading/writing frames
+constexpr size_t FRAMES_BUFFER_SIZE = 65536; // Buffer for reading/writing frames
 
 int main(int argc, char *argv[]) {
 
