@@ -5,7 +5,7 @@
 
 using namespace std;
 
-constexpr size_t FRAMES_BUFFER_SIZE = 65535; // Buffer for reading/writing frames
+constexpr size_t FRAMES_BUFFER_SIZE = 65536; // Buffer for reading/writing frames
 
 int main(int argc, char *argv[]) {
 
@@ -43,20 +43,13 @@ int main(int argc, char *argv[]) {
 		return 1;
     }
 
-	int NoBitsIn = 16;
-	int NoBitsOut = NoBitsIn-lost_bits;
-	int y = 0;
-	for(int i = NoBitsIn-1; i >= NoBitsOut; i--){
-		y = y + pow(2, i);
-	}
-	y = pow(2, NoBitsIn) - y - 1;
 	size_t nFrames;
 	vector<short> samples(FRAMES_BUFFER_SIZE * sfhIn.channels());
 	while((nFrames = sfhIn.readf(samples.data(), FRAMES_BUFFER_SIZE))){
 		samples.resize(nFrames * sfhIn.channels());
 		vector<short> newsamples;
         for(short s : samples){
-			s = y & (s >> lost_bits);
+			s = (s >> lost_bits) << lost_bits;
 			newsamples.push_back(s);
         }
 		sfhOut.writef(newsamples.data(), nFrames);
