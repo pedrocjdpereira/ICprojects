@@ -4,8 +4,6 @@
 
 using namespace std;
 
-constexpr size_t BUFFER_SIZE = 8;
-
 class BitStream {
   private:
 	unsigned char buffer;
