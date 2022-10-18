@@ -2,6 +2,7 @@
 #include <vector>
 #include <sndfile.hh>
 #include <math.h>
+#include <fstream>
 
 using namespace std;
 
@@ -28,8 +29,13 @@ int main(int argc, char *argv[]) {
 		cerr << "Error: file is not in PCM_16 format\n";
 		return 1;
 	}
-    //y = Asin()
-    int i = 0;
+
+	ofstream leftsignal, rightsignal;
+  	leftsignal.open ("leftsignal.txt");
+	rightsignal.open ("rightsignal.txt");
+
+    int i = 0, lx = 0, rx = 0;
+	double ly, ry;
 	size_t nFrames;
 	vector<short> samples(FRAMES_BUFFER_SIZE * sfhIn.channels());
 	while((nFrames = sfhIn.readf(samples.data(), FRAMES_BUFFER_SIZE))){
@@ -37,10 +43,21 @@ int main(int argc, char *argv[]) {
         double news = 0;
         for(short s : samples){
 			news = (((double)s)*8/65536) + 6;
-            double f = news*sin(i);
+			if(i % 2 == 0){
+				ly = news*sin(pow(10,6)*i);
+				leftsignal << "x = " << lx << " y = " << ly << "\n";
+				lx++;
+			}
+			else{
+				ry = news*sin(pow(10,6)*i);
+				rightsignal << "x = " << rx << " y = " << ry << "\n";
+				rx++;
+			}
             i++;
         }
 	}
+  	leftsignal.close();
+	rightsignal.close();
 	return 0;
 }
 
