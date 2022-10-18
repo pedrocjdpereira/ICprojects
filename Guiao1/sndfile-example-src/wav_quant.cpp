@@ -10,10 +10,10 @@ constexpr size_t FRAMES_BUFFER_SIZE = 65536; // Buffer for reading/writing frame
 int main(int argc, char *argv[]) {
 
 	if(argc < 3) {
-		cerr << "Usage: wav_quant wavFileIn noOfLostBits\n";
+		cerr << "Usage: wav_quant <input file> <output file> <number of bits to reduce>\n";
 		return 1;
 	}
-	SndfileHandle sfhIn { argv[argc-2] };
+	SndfileHandle sfhIn { argv[argc-3] };
 	if(sfhIn.error()) {
 		cerr << "Error: invalid input file\n";
 		return 1;
@@ -29,31 +29,37 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-    int lost_bits = stoi(argv[argc-1]);
-	if(lost_bits < 0 || lost_bits > 16) {
-		cerr << "Error: invalid number of bits lost\n";
-		return 1;
-    }
-
-	SndfileHandle sfhOut { "quant.wav", SFM_WRITE, sfhIn.format(),
+	SndfileHandle sfhOut {argv[argc-2], SFM_WRITE, sfhIn.format(),
 	  sfhIn.channels(), sfhIn.samplerate() };
-	
 	if(sfhOut.error()) {
 		cerr << "Error: invalid output file\n";
 		return 1;
-    }
+	}
 
+	if(!isdigit(*argv[argc-1])) {
+		cerr << "Error: number of bits must be an integer\n";
+		return 1;
+	}
+
+    unsigned short reduceBits = stoi(argv[argc-1]);
+	if(reduceBits > 16) {
+		cerr << "Error: invalid number of bits\n";
+		return 1;
+    }
+	
 	size_t nFrames;
 	vector<short> samples(FRAMES_BUFFER_SIZE * sfhIn.channels());
 	while((nFrames = sfhIn.readf(samples.data(), FRAMES_BUFFER_SIZE))){
 		samples.resize(nFrames * sfhIn.channels());
-		vector<short> newsamples;
-        for(short s : samples){
-			s = (s >> lost_bits) << lost_bits;
-			newsamples.push_back(s);
-        }
-		sfhOut.writef(newsamples.data(), nFrames);
+		
+		vector<short> nsamples;
+        for(short s : samples)
+			// reduce number of bits used to represent each audio sample
+			// (ignore the num(reduceBits) least significant bits)
+			nsamples.push_back((s >> reduceBits) << reduceBits);
+		
+		sfhOut.writef(nsamples.data(), nFrames);
 	}
+
 	return 0;
 }
-
