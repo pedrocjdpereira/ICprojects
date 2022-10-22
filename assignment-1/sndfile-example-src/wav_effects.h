@@ -24,17 +24,8 @@ class WAVEffects {
 			for (auto s: newSamples) samples.push_back(s);
 		}
 
-		int dump(std::string path = "./output.wav") const {
-			SndfileHandle sfhOut {path, SFM_WRITE, format,
-			  channels, samplerate };
-
-			if(sfhOut.error()) {
-				std::cerr << "Error: invalid output file\n";
-				return 0;
-			}
-			sfhOut.writef(samples.data(), samples.size()/2);
-			return 1;
-
+		void dump(SndfileHandle& sfh) const {
+			sfh.writef(samples.data(), samples.size()/2);
 		}	
 
 		void single_echo(float delay, float atenuation) {

@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 		cerr << "Usage: wav_effects <options> <input file> <output file>\n";
 		cerr << "\nOptions:\n";
 		cerr << "\t-se <delay> <atenuation>\t\t= Single echo.\n";
-		cerr << "\t-me <some value>\t\t= Multiple echos.\n";
+		cerr << "\t-me <delay> <atenuation>\t\t= Multiple echos.\n";
 		cerr << "\t-am <some value>\t\t= Amplitude modulation\n";
 		return 1;
 	}
@@ -41,6 +41,14 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
+	SndfileHandle sfhOut { argv[argc-2], SFM_WRITE, sfhIn.format(),
+	  sfhIn.channels(), sfhIn.samplerate() };
+	if(sfhOut.error()) {
+		cerr << "Error: invalid output file\n";
+		return 1;
+    }
+
+
 	// Read samples from file and store them in WAVEffects object
 	size_t nFrames;
 	int n {};
@@ -52,11 +60,12 @@ int main(int argc, char *argv[]) {
 		n += nFrames;
 	}
 
-	//if(se) eff.single_echo(stof(argv[se+1]), stof(argv[se+2]));
-
+	// TODO: verify error's if arg is not an float
+	if(se) eff.single_echo(stof(argv[se+1]), stof(argv[se+2]));
 	if(me) eff.multiple_echos(stof(argv[me+1]), stof(argv[me+2]));
+	//if(am) eff.amplitude_modulation(stof())
 
-	eff.dump();
+	eff.dump(sfhOut);
 
 	return 0;
 }
