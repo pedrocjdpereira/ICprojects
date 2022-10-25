@@ -11,50 +11,62 @@ class BitStream {
 
   public:
 	BitStream() {
-	buffer = 0;
-	rdpointer = 8;
-	wrpointer = 8;
-	}
-
-	unsigned char readBit(){
-		rdpointer++;
-		if(rdpointer == 8){
+		buffer = 0x00;
 		rdpointer = 0;
-		}
-		return (buffer >> rdpointer) & 1;
-	}
-
-	void writeBit(char bit){
-		wrpointer++;
-		if(wrpointer == 8){
 		wrpointer = 0;
-		}
-		buffer = buffer | (bit << wrpointer);
 	}
 
-	void readNbit(fstream* f, char* bitArray, int size){
+	void readBit(unsigned char bit){
+		rdpointer--;
+		if(rdpointer == -1){
+			rdpointer = 7;
+		}
+		buffer = (buffer | ((bit & 0x01) << rdpointer));
+	}
+
+	unsigned char writeBit(){
+		rdpointer--;
+		if(rdpointer == -1){
+			rdpointer = 7;
+		}
+		return ((buffer >> rdpointer) & 0x01);
+	}
+
+	void readNbits(fstream* ft, fstream* fb, char* bitArray, int size){
+		unsigned char c;
 		if(size != 8){
 			return;
 		}
-		int i = 0;
-		f->read(reinterpret_cast<char*>(&buffer), 1);
-		while(i < size){
-			bitArray[i] = readBit();
-			i++;
-		}
-		buffer = 0;
-	}
-
-	void writeNbits(fstream* f, char* bitArray, int size){
-		if(size != 8){
+		if(ft->peek() == EOF){
+			*bitArray = '\n';
 			return;
 		}
 		int i = 0;
-		buffer = 0;
+		buffer = 0x00;
 		while(i < size){
-			writeBit(bitArray[i]);
+			ft->read(reinterpret_cast<char*>(&c), 1);
+			readBit(c);
 			i++;
 		}
-		f->write(reinterpret_cast<char*>(&buffer), 1);
+		*bitArray = buffer;
+		fb->write(reinterpret_cast<char*>(&buffer), 1);
+	}
+
+	void writeNbits(fstream* fb, fstream* ft, char* bitArray, int size){
+		unsigned char c;
+		if(size != 8){
+			return;
+		}
+		if(fb->peek() < 0){
+			*bitArray = '\n';
+			return;
+		}
+		int i = 0;
+		fb->read(reinterpret_cast<char*>(&buffer), 1);
+		while(i < size){
+			*ft << (writeBit() & 0x01);
+			i++;
+		}
+		buffer = 0x00;
 	}
 };

@@ -5,41 +5,50 @@
 
 using namespace std;
 
-constexpr size_t ARRAY_SIZE = 8;
+constexpr int ARRAY_SIZE = 8;
 
 int main(int argc, char *argv[])
 {
 
 	if (argc < 4)
 	{
-		cerr << "Usage:  <original file> <encoded file> <decoded file>\n";
+		cerr << "Usage:  <original file> <new file> <option>\nOptions:\n0-Text to Binary\n1-Binary to Text\n";
 		return 1;
 	}
 
 	BitStream bs { };
 	
-	char bitArray = 'c';
-		
-	fstream ogfile;
-  	ogfile.open(argv[argc -3]);
-	
-	fstream encodfile;
-	encodfile.open(argv[argc - 2]);
+	char* bitArray = (char*) malloc(sizeof(char));
 
-	fstream decodfile;
-	decodfile.open(argv[argc - 1]);
+	*bitArray = 0x00;
 
-	bs.readNbit(&ogfile, &bitArray, ARRAY_SIZE);
+	fstream txtfile;
+	fstream binfile;
 
-	printf("%c", &bitArray);
+	int option = atoi(argv[argc-1]);
 
-	bs.writeNbits(&encodfile, &bitArray, ARRAY_SIZE);
-	bs.readNbit(&encodfile, &bitArray, ARRAY_SIZE);
-	bs.writeNbits(&decodfile, &bitArray, ARRAY_SIZE);
+	if(option < 0 | option > 1){
+		return 0;
+	}
+	else if(option == 0){
+		txtfile.open(argv[argc-3], ios::in);
+		binfile.open(argv[argc-2], ios::out | ios::binary);
+		while(*bitArray != '\n'){
+			bs.readNbits(&txtfile, &binfile, bitArray, ARRAY_SIZE);
+		}
+	}
+	else{
+		binfile.open(argv[argc-3], ios::in | ios::binary);
+		txtfile.open(argv[argc-2], ios::out);
+		int i = 0;
+		while(*bitArray != '\n'){
+			i++;
+			bs.writeNbits(&binfile, &txtfile, bitArray, ARRAY_SIZE);
+		}
+	}
 
-	ogfile.close();
-	encodfile.close();
-	decodfile.close();
+	binfile.close();
+	txtfile.close();
 
 	return 0;
 }
