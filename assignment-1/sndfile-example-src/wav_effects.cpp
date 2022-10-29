@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	SndfileHandle sfhOut { argv[argc-2], SFM_WRITE, sfhIn.format(),
+	SndfileHandle sfhOut { argv[argc-1], SFM_WRITE, sfhIn.format(),
 	  sfhIn.channels(), sfhIn.samplerate() };
 	if(sfhOut.error()) {
 		cerr << "Error: invalid output file\n";
