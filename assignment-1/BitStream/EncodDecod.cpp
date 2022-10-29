@@ -40,9 +40,7 @@ int main(int argc, char *argv[])
 	else{
 		binfile.open(argv[argc-3], ios::in | ios::binary);
 		txtfile.open(argv[argc-2], ios::out);
-		int i = 0;
 		while(*bitArray != '\n'){
-			i++;
 			bs.writeNbits(&binfile, &txtfile, bitArray, ARRAY_SIZE);
 		}
 	}
