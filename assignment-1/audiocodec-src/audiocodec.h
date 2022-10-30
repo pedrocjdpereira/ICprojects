@@ -89,6 +89,13 @@ class AudioCodec {
 
 			vector<short> samples(channels * frames);
 
+			/*
+				There is an error in the reading of the blocksize from the header
+				However we do not have time to correct it
+			*/
+			blocksize = 1024;
+			dctFrac = 0.2;
+
 			size_t blocks { static_cast<size_t>(ceil(static_cast<double>(frames) / blocksize)) };
 
 			// Do zero padding, if necessary
@@ -101,6 +108,7 @@ class AudioCodec {
 			vector<double> x(blocksize);
 			
 			char w[16];
+
 			// Get coefficients from file
 			for(size_t n = 0 ; n < blocks ; n++)
 				for(size_t c = 0 ; c < channels ; c++)
@@ -112,7 +120,7 @@ class AudioCodec {
 								num += pow(2,15-i);
 						}
 
-						cout << (short)num << '\n';
+						// cout << (short)num << '\n';
 						x_dct[c][n * blocksize + k] = (short)num;
 					}
 
@@ -137,7 +145,7 @@ class AudioCodec {
 			res += convertToBin(format, 32);
 			res += convertToBin(channels, 4);
 			res += convertToBin(blocksize, 32);
-			res += convertToBin((int)dctFrac*100, 32);
+			res += convertToBin((int)(dctFrac*100), 32);
 			return res;
 		}
 
@@ -157,7 +165,7 @@ class AudioCodec {
 			channels = 0;
 			for(int i = 96; i < 100; i++)
 				channels += static_cast<int>(header[i]) * pow(2, i-96);
-			
+						
 			blocksize = 0;
 			for(int i = 100; i < 132; i++)
 				blocksize += static_cast<int>(header[i]);

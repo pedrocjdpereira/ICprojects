@@ -50,10 +50,7 @@ int main(int argc, char *argv[]) {
 		return 0;
 
 	} else if (string(argv[1]) == "-d") {
-		cout << argv[argc-1];
-
 		ac.decode(argv[argc-2], argv[argc-1]);
-
 		return 0;
 	} else {
 		cerr << "Invalid Option!";
