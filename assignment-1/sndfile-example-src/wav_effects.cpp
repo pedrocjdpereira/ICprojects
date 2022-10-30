@@ -7,13 +7,11 @@ using namespace std;
 
 constexpr size_t FRAMES_BUFFER_SIZE = 65536; // Buffer for reading/writing frames
 
+void output_usage();
+
 int main(int argc, char *argv[]) {
-	if(argc < 5) {
-		cerr << "Usage: wav_effects <options> <input file> <output file>\n";
-		cerr << "\nOptions:\n";
-		cerr << "\t-se <delay> <atenuation>\t\t= Single echo.\n";
-		cerr << "\t-me <delay> <atenuation>\t\t= Multiple echos.\n";
-		cerr << "\t-am <some value>\t\t= Amplitude modulation\n";
+	if(argc < 4) {
+		output_usage();
 		return 1;
 	}
 
@@ -23,6 +21,10 @@ int main(int argc, char *argv[]) {
 		if(string(argv[n]) == "-se") se=n;
 		else if(string(argv[n]) == "-me") me=n;
 		else if(string(argv[n]) == "-am") am=n;
+	} 
+	if((se || me) && argc < 5) {
+		output_usage();
+		return 1;
 	} 
 
 	SndfileHandle sfhIn { argv[argc-2] };
@@ -41,19 +43,18 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	SndfileHandle sfhOut { argv[argc-2], SFM_WRITE, sfhIn.format(),
+	SndfileHandle sfhOut { argv[argc-1], SFM_WRITE, sfhIn.format(),
 	  sfhIn.channels(), sfhIn.samplerate() };
 	if(sfhOut.error()) {
 		cerr << "Error: invalid output file\n";
 		return 1;
     }
 
-
 	// Read samples from file and store them in WAVEffects object
 	size_t nFrames;
 	int n {};
 	vector<short> samples(FRAMES_BUFFER_SIZE * sfhIn.channels());
-	WAVEffects eff { sfhIn, argv[argc-1] };
+	WAVEffects eff { sfhIn };
 	while((nFrames = sfhIn.readf(samples.data(), FRAMES_BUFFER_SIZE))) {
 		samples.resize(nFrames * sfhIn.channels());
 		eff.append(samples);
@@ -63,9 +64,17 @@ int main(int argc, char *argv[]) {
 	// TODO: verify error's if arg is not an float
 	if(se) eff.single_echo(stof(argv[se+1]), stof(argv[se+2]));
 	if(me) eff.multiple_echos(stof(argv[me+1]), stof(argv[me+2]));
-	//if(am) eff.amplitude_modulation(stof())
+	if(am) eff.amplitude_modulation();
 
 	eff.dump(sfhOut);
 
 	return 0;
+}
+
+void output_usage() {
+	cerr << "Usage: wav_effects <options> <input file> <output file>\n";
+	cerr << "\nOptions:\n";
+	cerr << "\t-se <delay> <atenuation>\t= Single echo.\n";
+	cerr << "\t-me <delay> <atenuation>\t= Multiple echos.\n";
+	cerr << "\t-am                     \t= Amplitude modulation.\n";
 }
