@@ -8,37 +8,56 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-	SndfileHandle sfhIn { argv[argc-1] };
-	if(sfhIn.error()) {
-		cerr << "Error: invalid input file\n";
-		return 1;
-    }
-
-	if((sfhIn.format() & SF_FORMAT_TYPEMASK) != SF_FORMAT_WAV) {
-		cerr << "Error: file is not in WAV format\n";
+	if(argc < 4) {
+		cerr << "Usage: audiocodec <option> <input file> <output file> \n";
+		cerr << "\nOptions:\n";
+		cerr << "\t-e [blocksize] [dctFrac]\t- encode file\n";
+		cerr << "\t-d                      \t- decode file\n";
 		return 1;
 	}
+	
+	AudioCodec ac {};
+	
+	if(string(argv[1]) == "-e") {
+		size_t bs;
+		double dctFrac;
+		if(argc >= 6) {
+			bs = stoi(argv[2]);
+			dctFrac = stod(argv[3]);
+		} else {
+			bs = 1024;
+			dctFrac = 0.2;
+		}
 
-	if((sfhIn.format() & SF_FORMAT_SUBMASK) != SF_FORMAT_PCM_16) {
-		cerr << "Error: file is not in PCM_16 format\n";
-		return 1;
+		SndfileHandle sfhIn { argv[argc-2] };
+		if(sfhIn.error()) {
+			cerr << "Error: invalid input file\n";
+			return 1;
+		}
+
+		if((sfhIn.format() & SF_FORMAT_TYPEMASK) != SF_FORMAT_WAV) {
+			cerr << "Error: file is not in WAV format\n";
+			return 1;
+		}
+
+		if((sfhIn.format() & SF_FORMAT_SUBMASK) != SF_FORMAT_PCM_16) {
+			cerr << "Error: file is not in PCM_16 format\n";
+			return 1;
+		}
+
+		ac.encode(sfhIn, argv[argc-1], bs, dctFrac);
+
+		return 0;
+
+	} else if (string(argv[1]) == "-d") {
+		cout << argv[argc-1];
+
+		ac.decode(argv[argc-2], argv[argc-1]);
+
+		return 0;
+	} else {
+		cerr << "Invalid Option!";
 	}
 
-	size_t channels { static_cast<size_t>(sfhIn.channels()) };
-	size_t frames { static_cast<size_t>(sfhIn.frames()) };
-	size_t samplerate {static_cast<size_t>(sfhIn.samplerate()) };
-	size_t format {static_cast<size_t>(sfhIn.format()) };
-
-	// Read all samples: c1 c2 ... cn c1 c2 ... cn ...
-	// Note: A frame is a group c1 c2 ... cn
-	vector<short> samples(channels * frames);
-	sfhIn.readf(samples.data(), frames);
-
-	size_t bs {1024};
-	double dctFrac {0.2};
-	
-	AudioCodec ac {samples, frames, samplerate, format, channels};
-	
-	ac.encode("out.ac", bs, dctFrac);
-	ac.decode("out.ac");
+	return 1;
 }

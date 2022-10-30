@@ -16,7 +16,6 @@ using namespace std;
 
 class AudioCodec {
 	private:
-		vector<short> samples;
 		size_t frames;
 		size_t samplerate;
 		size_t format;
@@ -25,25 +24,26 @@ class AudioCodec {
 		double dctFrac;
 
 	public:
-		AudioCodec(vector<short> samples, size_t frames, size_t samplerate, \
-			size_t format, size_t channels) {
-			AudioCodec::samples = samples;
-			AudioCodec::frames = frames;
-			AudioCodec::samplerate = samplerate;
-			AudioCodec::format = format;
-			AudioCodec::channels = channels;
-		}
+		AudioCodec() { }
 		
-		void encode(const char *ofname, size_t blocksize, double dctFrac) {
-			AudioCodec::blocksize = blocksize;
-			AudioCodec::dctFrac = dctFrac;
-
+		void encode(SndfileHandle sfh, const char *ofname, size_t bs, double dctf) {
+			channels = static_cast<size_t>(sfh.channels());
+			frames = static_cast<size_t>(sfh.frames());
+			samplerate = static_cast<size_t>(sfh.samplerate());
+			format = static_cast<size_t>(sfh.format());
+			
+			vector<short> samples(channels * frames);
+			sfh.readf(samples.data(), frames);
+			blocksize = bs;
+			dctFrac = dctf;
+			
 			BitStream obs {ofname, 'w'};
 			
+			// Write header to file
 			string aux = encodeHeader();
-			char header[100];
+			char header[164];
 			strcpy(header, aux.c_str());
-			obs.writeNBits(header, 100);
+			obs.writeNBits(header, 164);
 
 			size_t blocks { static_cast<size_t>(ceil(static_cast<double>(frames) / blocksize)) };
 
@@ -76,28 +76,32 @@ class AudioCodec {
 			obs.close();
 		}
 
-		void decode(const char *ofname) {
-			BitStream obs {ofname, 'r'};
-			char header[100];
-			obs.readNBits(header, 100);
+		void decode(const char *ifname, const char *ofname) {
+			BitStream obs {ifname, 'r'};
+			char header[164];
+			obs.readNBits(header, 164);
 			decodeHeader(header);
 
-			SndfileHandle sfhOut {"out.wav", SFM_WRITE, format, channels, samplerate};
-			if(sfhOut.error()) {
-				cerr << "Error: invalid output file\n";
-				return;
-			}
+			SndfileHandle sfhOut { ofname, SFM_WRITE, static_cast<int>(format),\
+			  static_cast<int>(channels), static_cast<int>(samplerate) };
+			if(sfhOut.error())
+				throw runtime_error("Invalid input file");
+
+			vector<short> samples(channels * frames);
 
 			size_t blocks { static_cast<size_t>(ceil(static_cast<double>(frames) / blocksize)) };
 
-			// Vector for holding DCT computations
-			vector<double> x(blocksize);
+			// Do zero padding, if necessary
+			samples.resize(blocks * blocksize * channels);
 
-			// Inverse DCT
-			char w[16];
-			
 			// Vector for holding all DCT coefficients, channel by channel
 			vector<vector<double>> x_dct(channels, vector<double>(blocks * blocksize));
+
+			// Vector for holding DCT computations
+			vector<double> x(blocksize);
+			
+			char w[16];
+			// Get coefficients from file
 			for(size_t n = 0 ; n < blocks ; n++)
 				for(size_t c = 0 ; c < channels ; c++)
 					for(size_t k = 0 ; k < blocksize * dctFrac ; k++) {
@@ -132,6 +136,8 @@ class AudioCodec {
 			res += convertToBin(samplerate, 32);
 			res += convertToBin(format, 32);
 			res += convertToBin(channels, 4);
+			res += convertToBin(blocksize, 32);
+			res += convertToBin((int)dctFrac*100, 32);
 			return res;
 		}
 
@@ -151,6 +157,15 @@ class AudioCodec {
 			channels = 0;
 			for(int i = 96; i < 100; i++)
 				channels += static_cast<int>(header[i]) * pow(2, i-96);
+			
+			blocksize = 0;
+			for(int i = 100; i < 132; i++)
+				blocksize += static_cast<int>(header[i]);
+
+			dctFrac = 0;
+			for(int i = 100; i < 164; i++)
+				dctFrac += static_cast<int>(header[i]);
+			dctFrac /= 100;
 		}
 
 		string convertToBin(int value, int numBits) {
