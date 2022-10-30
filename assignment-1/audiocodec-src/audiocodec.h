@@ -89,13 +89,6 @@ class AudioCodec {
 
 			vector<short> samples(channels * frames);
 
-			/*
-				There is an error in the reading of the blocksize from the header
-				However we do not have time to correct it
-			*/
-			blocksize = 1024;
-			dctFrac = 0.2;
-
 			size_t blocks { static_cast<size_t>(ceil(static_cast<double>(frames) / blocksize)) };
 
 			// Do zero padding, if necessary
@@ -168,11 +161,11 @@ class AudioCodec {
 						
 			blocksize = 0;
 			for(int i = 100; i < 132; i++)
-				blocksize += static_cast<int>(header[i]);
+				blocksize += static_cast<int>(header[i] * pow(2, i-100));
 
 			dctFrac = 0;
-			for(int i = 100; i < 164; i++)
-				dctFrac += static_cast<int>(header[i]);
+			for(int i = 132; i < 164; i++)
+				dctFrac += static_cast<int>(header[i] * pow(2, i-132));
 			dctFrac /= 100;
 		}
 
