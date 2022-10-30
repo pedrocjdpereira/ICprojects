@@ -1,7 +1,7 @@
 #ifndef AUDIOCODEC_H
 #define AUDIOCODEC_H
 
-#include "../bitstream-src/bitstream.h"
+#include "bitstream-src/bitstream.h"
 #include <vector>
 #include <cstring>
 #include <iostream>
