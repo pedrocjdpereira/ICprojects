@@ -6,31 +6,29 @@ using namespace std;
 class BitStream {
   private:
 	unsigned char buffer;
-	int rdpointer;
-	int wrpointer;
+	int pointer;
 
   public:
 	BitStream() {
 		buffer = 0x00;
-		rdpointer = 0;
-		wrpointer = 0;
+		pointer = 0;
 	}
 
 	void readBit(unsigned char bit){
-		rdpointer--;
-		if(rdpointer == -1){
-			rdpointer = 7;
+		pointer--;
+		if(pointer == -1){
+			pointer = 7;
 		}
-		buffer = (buffer | ((bit & 0x01) << rdpointer));
+		buffer = (buffer | ((bit & 0x01) << pointer));
 	}
 
 	unsigned char writeBit(fstream* fb){
-		rdpointer--;
-		if(rdpointer == -1){
+		pointer--;
+		if(pointer == -1){
 			fb->read(reinterpret_cast<char*>(&buffer), 1);
-			rdpointer = 7;
+			pointer = 7;
 		}
-		return ((buffer >> rdpointer) & 0x01);
+		return ((buffer >> pointer) & 0x01);
 	}
 
 	void readNbits(fstream* ft, fstream* fb, char* bitArray, int size){
