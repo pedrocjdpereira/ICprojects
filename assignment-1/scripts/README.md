@@ -1,2 +1,2 @@
 # Assignment 1 - Scripts
-TODO
+Alguns scripts que ajudam na execução dos exercícios.
