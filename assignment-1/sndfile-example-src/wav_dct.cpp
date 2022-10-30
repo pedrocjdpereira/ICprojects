@@ -87,12 +87,14 @@ int main(int argc, char *argv[]) {
 	// Vector for holding DCT computations
 	vector<double> x(bs);
 
-	// Direct DCT
+	// Direct DCTn
 	fftw_plan plan_d = fftw_plan_r2r_1d(bs, x.data(), x.data(), FFTW_REDFT10, FFTW_ESTIMATE);
 	for(size_t n = 0 ; n < nBlocks ; n++)
 		for(size_t c = 0 ; c < nChannels ; c++) {
-			for(size_t k = 0 ; k < bs ; k++)
+			for(size_t k = 0 ; k < bs ; k++) {
 				x[k] = samples[(n * bs + k) * nChannels + c];
+				cout << x[k] << endl;
+			}
 
 			fftw_execute(plan_d);
 			// Keep only "dctFrac" of the "low frequency" coefficients
