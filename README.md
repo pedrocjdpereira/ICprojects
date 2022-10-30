@@ -4,7 +4,7 @@ Programming assignments made for the IC course.
 | Nmec | Name | Github |
 | :--: | :--- | :----- |
 | XXXXX | David Bicho | [@david13122000](https://github.com/david13122000) |
-| XXXXX | Pedro Pereira | [@pedrocjdpereira](https://github.com/pedrocjdpereira) |
+| 93196 | Pedro Pereira | [@pedrocjdpereira](https://github.com/pedrocjdpereira) |
 | 97596 | Diogo Jesus | [@diogopjesus](https://github.com/diogopjesus) |
 
 

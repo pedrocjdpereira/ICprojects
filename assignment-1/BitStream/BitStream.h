@@ -24,9 +24,10 @@ class BitStream {
 		buffer = (buffer | ((bit & 0x01) << rdpointer));
 	}
 
-	unsigned char writeBit(){
+	unsigned char writeBit(fstream* fb){
 		rdpointer--;
 		if(rdpointer == -1){
+			fb->read(reinterpret_cast<char*>(&buffer), 1);
 			rdpointer = 7;
 		}
 		return ((buffer >> rdpointer) & 0x01);
@@ -34,9 +35,6 @@ class BitStream {
 
 	void readNbits(fstream* ft, fstream* fb, char* bitArray, int size){
 		unsigned char c;
-		if(size != 8){
-			return;
-		}
 		if(ft->peek() == EOF){
 			*bitArray = '\n';
 			return;
@@ -53,20 +51,17 @@ class BitStream {
 	}
 
 	void writeNbits(fstream* fb, fstream* ft, char* bitArray, int size){
-		unsigned char c;
-		if(size != 8){
-			return;
-		}
-		if(fb->peek() < 0){
-			*bitArray = '\n';
-			return;
-		}
+		unsigned char* c = (unsigned char*) malloc(sizeof(char));
 		int i = 0;
-		fb->read(reinterpret_cast<char*>(&buffer), 1);
 		while(i < size){
-			*ft << (writeBit() & 0x01);
+			*c = (writeBit(fb) & 0x01);
+			if(fb->peek() < 0){
+				*bitArray = '\n';
+				return;
+			}
+			*ft << (*c & 0x01);
 			i++;
 		}
-		buffer = 0x00;
+		free(c);
 	}
 };
