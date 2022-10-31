@@ -1,0 +1,1 @@
+# Loseless Image Codec
