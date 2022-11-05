@@ -8,7 +8,7 @@ Can be found at imgmanipulation-src/img_eff.cpp
 
 ## Part 2
 ### Exercise 3
-Can be found a golomb-src/
+Can be found at golomb-src/
 
 ## Part 3
 ### Exercise 4 and 5
