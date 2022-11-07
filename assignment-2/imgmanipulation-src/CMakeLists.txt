@@ -15,3 +15,6 @@ SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BASE_DIR}/../imgmanipulation-bin)
 
 add_executable(img_cpy img_cpy.cpp)
 target_link_libraries(img_cpy ${OpenCV_LIBS})
+
+add_executable(img_eff img_eff.cpp)
+target_link_libraries(img_eff ${OpenCV_LIBS})
