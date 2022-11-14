@@ -9,6 +9,7 @@ int main(int argc, char *argv[]) {
 		std::cerr << "Options:\n";
 		std::cerr << "0-Negative version\n1-Mirrored horizontally\n2-Mirrored vertically\n";
 		std::cerr << "3-Rotate image\n";
+		std::cerr << "4-Increase/decrease intensity values\n";
 		return 1;
 	}
 
@@ -22,6 +23,7 @@ int main(int argc, char *argv[]) {
 
 	int option = atoi(argv[argc - 1]);
 	int angle;
+	int beta;
 	if(option == 3){
 		std::cout << "Insert the angle of rotation:";
 		std::cin >> angle;
@@ -31,11 +33,23 @@ int main(int argc, char *argv[]) {
 			std::cin >> angle;
 		}
 	}
+	else if(option == 4){
+		std::cout << "Insert the beta value:";
+		std::cin >> beta;
+		while(!((beta >= -100) & (beta <= 100))){
+			std::cout << "Beta must be more than -100 and less than 100!\n";
+			std::cout << "Insert the beta value:";
+			std::cin >> beta;
+		}
+	}
 	for(int i = 0; i < ogimage.rows; i++){
 		for(int j = 0; j < ogimage.cols; j++){
 			Vec3b pixel;
 			if(option == 0){
 				pixel = Vec3b(255 - ogimage.ptr<Vec3b>(i)[j][0], 255 - ogimage.ptr<Vec3b>(i)[j][1], 255 - ogimage.ptr<Vec3b>(i)[j][2]);
+			}
+			else if(option == 4){
+				pixel = Vec3b(saturate_cast<uchar>(ogimage.ptr<Vec3b>(i)[j][0] + beta ), saturate_cast<uchar>(ogimage.ptr<Vec3b>(i)[j][1] + beta ), saturate_cast<uchar>(ogimage.ptr<Vec3b>(i)[j][2] + beta ));
 			}
 			else{
 				pixel = Vec3b(ogimage.ptr<Vec3b>(i)[j][0], ogimage.ptr<Vec3b>(i)[j][1], ogimage.ptr<Vec3b>(i)[j][2]);
@@ -61,13 +75,14 @@ int main(int argc, char *argv[]) {
 					imagecopy.ptr<Vec3b>(j)[ogimage.rows - i] = pixel;
 				}
 			}
+			else if(option == 4){
+				imagecopy.ptr<Vec3b>(i)[j] = pixel;
+			}
 			else{
 					std::cerr << "Invalid option";
 					return 1;
 			}
 		}
 	}
-
-
 	imwrite(argv[argc - 2], imagecopy);
 }
