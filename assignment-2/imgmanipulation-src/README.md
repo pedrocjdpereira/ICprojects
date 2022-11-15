@@ -7,32 +7,32 @@ make
 ```
 
 ## To Test
-To test img_cpy run:
+Exercise 1) - To test img_cpy run:
 ```
 ../imgmanipulation-bin/img_cpy ../../datasets/imagens\ PPM/airplane.ppm airplane_copy.ppm
 ```
 
-To test img_eff negative run:
+Exercise 2.a) - To test img_eff negative run:
 ```
 ../imgmanipulation-bin/img_eff ../../datasets/imagens\ PPM/airplane.ppm airplane_negative.ppm 0
 ```
 
-To test img_eff mirrored horizontaly run:
+Exercise 2.b.a) - To test img_eff mirrored horizontaly run:
 ```
 ../imgmanipulation-bin/img_eff ../../datasets/imagens\ PPM/airplane.ppm airplane_mirrored_horizontal.ppm 1
 ```
 
-To test img_eff mirrored vertically run:
+Exercise 2.b.b) - To test img_eff mirrored vertically run:
 ```
 ../imgmanipulation-bin/img_eff ../../datasets/imagens\ PPM/airplane.ppm airplane_mirrored_vertical.ppm 2
 ```
 
-To test img_eff rotation run:
+Exercise 2.c)  - To test img_eff rotation run:
 ```
 ../imgmanipulation-bin/img_eff ../../datasets/imagens\ PPM/airplane.ppm airplane_rotation.ppm 3
 ```
 
-To test img_eff increase/decrease intensity run:
+Exercise 2.d) - To test img_eff increase/decrease intensity run:
 ```
 ../imgmanipulation-bin/img_eff ../../datasets/imagens\ PPM/airplane.ppm airplane_intensity.ppm 4
 ```
