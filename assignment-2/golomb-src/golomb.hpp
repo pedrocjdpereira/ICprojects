@@ -3,7 +3,7 @@
  * @author Diogo Jesus (diogopjesus@ua.pt)
  * @author Pedro Pereira (pedrocjdpereira@ua.pt)
  * @author David Bicho (david13122000@ua.pt)
- * @brief 
+ * @brief Golomb coding implementation
  * @date 2022-11-21
  */
 
@@ -18,7 +18,7 @@ using namespace std;
 class Golomb {
 	private:
 	 	int i;
-		unsigned m, q, r, b;
+		unsigned m=0, q, r, b;
 
 	public:
 		/**

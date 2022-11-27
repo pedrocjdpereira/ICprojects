@@ -7,13 +7,16 @@ using namespace std;
 Golomb::Golomb(){}
 
 Golomb::Golomb(unsigned m) {
-	// TODO: if m == 0 throw error
+	/* Verify if m > 0 */
+	if(m <= 0) throw invalid_argument("m must be greater than 0!");
+
 	this->m = m;
 	this->b = (unsigned)ceil(log2(m));
 }
 
 string Golomb::encoder(int num) {
-	// TODO: verify if m is set
+	/* Check if m is initialized */
+	if(m<=0) throw runtime_error("m is not initialized!");
 
 	this->i = num;
 	/* Enable support for negative numbers */
@@ -45,7 +48,8 @@ string Golomb::encoder(int num) {
 }
 
 int Golomb::decoder(string bits) {
-	// TODO: verify if m is set
+	/* Check if m is initialized */
+	if(m<=0) throw runtime_error("m is not initialized!");
 
 	/* Get value of q */
 	this->q = bits.find('0');
@@ -66,7 +70,9 @@ int Golomb::decoder(string bits) {
 }
 
 void Golomb::setM(unsigned m) {
-	// TODO: if m == 0 throw error
+	/* Verify if m > 0 */
+	if(m <= 0) throw invalid_argument("m must be greater than 0!");
+
 	this->m = m;
 	this->b = (unsigned)ceil(log2(m));
 }
