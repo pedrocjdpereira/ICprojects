@@ -14,4 +14,4 @@ SET (BASE_DIR ${CMAKE_SOURCE_DIR} )
 SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BASE_DIR}/../laudiocodec-bin)
 
 add_executable(laudiocodec laudiocodec.cpp)
-target_link_libraries(laudiocodec ${OpenCV_LIBS})
+target_link_libraries(laudiocodec sndfile)
