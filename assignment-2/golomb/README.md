@@ -6,4 +6,5 @@ Relevant functions:
 ```
 string Golomb::encoder(int num);
 int Golomb::decoder(string bits);
+void Golomb::setM(unsigned m);
 ```
