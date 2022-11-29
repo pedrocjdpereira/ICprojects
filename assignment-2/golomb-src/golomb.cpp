@@ -1,6 +1,6 @@
-#include "golomb.hpp"
 #include <string>
 #include <math.h>
+#include "golomb.hpp"
 
 using namespace std;
 
@@ -27,10 +27,11 @@ string Golomb::encoder(int num) {
 	this->r = num - this->q * this->m;
 
 	/* Get the unary represenation of q */
-	unsigned q_una = uns2una(this->q);
+	string q_una = uns2una(this->q);
 
 	/* Get the truncated binary representation of r */	
-	unsigned r_truncBin, r_numBits;
+	string r_truncBin;
+	unsigned r_numBits;
 	if( this->r < (pow(2,this->b) - m) ) {
 		r_truncBin = uns2bin(this->r);
 		r_numBits = this->b - 1;
@@ -41,9 +42,9 @@ string Golomb::encoder(int num) {
 	}
 
 	/* Obtain final representation of num */
-	string res = to_string(r_truncBin);
+	string res = r_truncBin;
 	if(res.length() < r_numBits) res = '0' + res;
-	res = to_string(q_una) + res;
+	res = q_una + res;
 	return res;
 }
 
@@ -55,7 +56,7 @@ int Golomb::decoder(string bits) {
 	this->q = bits.find('0');
 
 	/* Get truncated binary representation of r */
-	int r_truncBin = stoi(bits.substr(this->q + 1));
+	string r_truncBin = bits.substr(this->q + 1);
 
 	/* Calculate the value of r */
 	this->r = bin2uns(r_truncBin);
@@ -77,19 +78,32 @@ void Golomb::setM(unsigned m) {
 	this->b = (unsigned)ceil(log2(m));
 }
 
-unsigned Golomb::uns2bin(unsigned num) {
+string Golomb::uns2bin(unsigned num) {
+	/*
 	if(num==0) return 0;
 	if(num==1) return 1;
 	return (num % 2) + 10 * uns2bin(num / 2);
+	*/
+
+	if(num==0) return "0";
+	if(num==1) return "1";
+	return uns2bin(num / 2) + to_string(num % 2);
 }
 
-unsigned Golomb::uns2una(unsigned num) {
+string Golomb::uns2una(unsigned num) {
+	/*
 	unsigned res = 0;
 	for(unsigned i = 1; i <= num; i++) res += pow(10,i);
 	return res;
+	*/
+
+	string res = "0";
+	for(unsigned i = 1; i <= num; i++) res = '1' + res;
+	return res;
 }
 
-unsigned Golomb::bin2uns(unsigned bin) {
+unsigned Golomb::bin2uns(string bin) {
+	/*
 	unsigned digit, res=0, tmp=bin;
 	for (unsigned i = 0; tmp > 0; i++) {
 		digit = tmp%10;
@@ -97,9 +111,17 @@ unsigned Golomb::bin2uns(unsigned bin) {
 		tmp /= 10;
 	}
 	return res;
+	*/
+
+	unsigned res=0, len=int(bin.length());
+	for(int i=0; i < len; i++) {
+		res += int(bin[len-1-i] - '0') * pow(2,i);
+	}
+	return res;
 }
 
-unsigned Golomb::una2uns(unsigned una) {
+unsigned Golomb::una2uns(string una) {
+	/*
 	if(una == 0) return 0;
 	unsigned tmp = 10, res = 1;
 	while(una > tmp) {
@@ -107,4 +129,6 @@ unsigned Golomb::una2uns(unsigned una) {
 		tmp += pow(10,res);
 	}
 	return res;
+	*/
+	return una.length() - 1;
 }

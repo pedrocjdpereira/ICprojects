@@ -10,7 +10,6 @@
 #ifndef GOLOMB_H
 #define GOLOMB_H
 
-#include <iostream>
 #include <string>
 
 using namespace std;
@@ -61,17 +60,17 @@ class Golomb {
 		 * @brief Convert an unsigned integer to its binary representation
 		 *
 		 * @param num value to be converted
-		 * @return unsigned
+		 * @return string
 		 */
-		unsigned uns2bin(unsigned num);
+		string uns2bin(unsigned num);
 
 		/**
 		 * @brief Convert an unsigned integer to its unary representation
 		 * 
 		 * @param num value to be converted
-		 * @return unsigned
+		 * @return string
 		 */
-		unsigned uns2una(unsigned num);
+		string uns2una(unsigned num);
 
 		/**
 		 * @brief Convert a binary string to an unsigned integer
@@ -79,7 +78,7 @@ class Golomb {
 		 * @param bin binary string to be converted
 		 * @return unsigned
 		 */
-		unsigned bin2uns(unsigned bin);
+		unsigned bin2uns(string bin);
 
 		/**
 		 * @brief Convert an unary string to an unsigned integer 
@@ -87,7 +86,7 @@ class Golomb {
 		 * @param una unary string to be converted
 		 * @return unsigned
 		 */
-		unsigned una2uns(unsigned una);
+		unsigned una2uns(string una);
 };
 
 #endif // GOLOMB_H
