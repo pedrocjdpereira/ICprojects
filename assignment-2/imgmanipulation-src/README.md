@@ -42,4 +42,4 @@ Exercise 2.d) - To test img_eff increase/decrease intensity run (beta equals -30
 This program accepts multiple flags at once, so it is possible to apply multiple effects at once.
 The degree on the rotation can be either negative or positive and must be a multiple of 90 (degrees).
 The beta value on the intensity must be between -100 and 100 (inclusive).
-
+The program assumes that the values passed as arguments are sanitized and will throw an error if they are invalid.

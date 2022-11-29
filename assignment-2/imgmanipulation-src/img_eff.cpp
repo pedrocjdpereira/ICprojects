@@ -38,6 +38,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
+	/* Apply effects to image */
 	for(int i = 1; i < argc-2; i++) {
 		switch(flagmap[argv[i]]) {
 			case 1:
