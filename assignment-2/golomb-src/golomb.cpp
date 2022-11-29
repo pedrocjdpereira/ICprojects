@@ -79,40 +79,18 @@ void Golomb::setM(unsigned m) {
 }
 
 string Golomb::uns2bin(unsigned num) {
-	/*
-	if(num==0) return 0;
-	if(num==1) return 1;
-	return (num % 2) + 10 * uns2bin(num / 2);
-	*/
-
 	if(num==0) return "0";
 	if(num==1) return "1";
 	return uns2bin(num / 2) + to_string(num % 2);
 }
 
 string Golomb::uns2una(unsigned num) {
-	/*
-	unsigned res = 0;
-	for(unsigned i = 1; i <= num; i++) res += pow(10,i);
-	return res;
-	*/
-
 	string res = "0";
 	for(unsigned i = 1; i <= num; i++) res = '1' + res;
 	return res;
 }
 
 unsigned Golomb::bin2uns(string bin) {
-	/*
-	unsigned digit, res=0, tmp=bin;
-	for (unsigned i = 0; tmp > 0; i++) {
-		digit = tmp%10;
-		res += digit*pow(2,i);
-		tmp /= 10;
-	}
-	return res;
-	*/
-
 	unsigned res=0, len=int(bin.length());
 	for(int i=0; i < len; i++) {
 		res += int(bin[len-1-i] - '0') * pow(2,i);
@@ -121,14 +99,5 @@ unsigned Golomb::bin2uns(string bin) {
 }
 
 unsigned Golomb::una2uns(string una) {
-	/*
-	if(una == 0) return 0;
-	unsigned tmp = 10, res = 1;
-	while(una > tmp) {
-		res++;
-		tmp += pow(10,res);
-	}
-	return res;
-	*/
 	return una.length() - 1;
 }
