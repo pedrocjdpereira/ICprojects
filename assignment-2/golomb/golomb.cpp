@@ -92,7 +92,7 @@ string Golomb::uns2una(unsigned num) {
 
 unsigned Golomb::bin2uns(string bin) {
 	unsigned res=0, len=int(bin.length());
-	for(int i=0; i < len; i++) {
+	for(unsigned i=0; i < len; i++) {
 		res += int(bin[len-1-i] - '0') * pow(2,i);
 	}
 	return res;
