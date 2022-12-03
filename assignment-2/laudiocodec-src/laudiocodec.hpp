@@ -14,6 +14,7 @@ class AudioCodec{
 		const char* fileOutName;
 		SF_INFO info;
 		char mode;
+		int m;
         int predictorN;
         vector<short> xn;
 		vector<short> rn;

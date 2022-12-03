@@ -5,7 +5,7 @@
 #include <vector>
 #include "bitstream.h"
 #include "laudiocodec.hpp"
-#include "../golomb-src/golomb.cpp"
+#include "../golomb/golomb.cpp"
 
 using namespace std;
 
@@ -43,8 +43,8 @@ int main(int argc, char *argv[]) {
 	if(argc < 4) {
 		cerr << "Usage: img_cpy <option> <original file> <new file>\n";
 		cerr << "Options\n";
-		cerr << "e - encode\n";
-		cerr << "d - decode\n";
+		cerr << "c - compress\n";
+		cerr << "d - decompress\n";
 
 		exit(1);
 	}
@@ -107,10 +107,20 @@ void AudioCodec::compress() {
 	}
 
 	predictorLossless();
+	
+	double avg = 0;
+    for(int i = 0; i < (int) rn.size(); i++) {
+        if(rn[i] < 0) avg += 2*(-rn[i]) - 1;
+		else avg += 2*rn[i];
+    }
+    avg = avg/rn.size();
 
-	Golomb g = Golomb(5);
+    m = (int) ceil(-1/(log2(avg/(avg+1))));
+	//cout << m;
 
-	encodeM(5);
+	Golomb g = Golomb(m);
+
+	encodeM(m);
 	encodeHeader(info.frames, info.samplerate, info.format, info.channels, 0);
 
 	//encodeShamt
@@ -120,6 +130,9 @@ void AudioCodec::compress() {
 		char c[s.length()];
 		stringtochar(s, c);
 		file.writeNBits(c, s.length());
+		/*if(i > 300000 & i < 318131){
+			cout << "i = " << i << "," << xn[i] << "," << rn[i] << "," << s << "\n";
+		}*/
 	}
 }
 
@@ -153,7 +166,8 @@ void AudioCodec::decompress(){
 		exit(1);
 	}
 
-	int m = decodeM();
+	m = decodeM();
+	//cout << m;
 	int b = (int) ceil(log2(m));
 	int header[5];
 	decodeHeader(header);
@@ -165,12 +179,21 @@ void AudioCodec::decompress(){
 
 	Golomb g = Golomb(m);
 
+	vector<string> sArray;
+
 	for(int i = 0; i < frames*channels; i++){
 		string s = getCodeword(m, b);
 		rn.push_back(g.decoder(s));
+		sArray.push_back(s);
 	}
 	
 	decompPredictorLossless();
+
+	/*for(int i = 0; i < frames*channels; i++){
+		if(i > 318110 & i <= 318130){
+			cout << "i = " << i << "," << xn[i] << "," << rn[i] << "," << sArray[i] << "\n";
+		}
+	}*/
 
 	info.frames = frames;
 	info.samplerate = samplerate;
@@ -196,14 +219,30 @@ void AudioCodec::decompPredictorLossless(){
 		}
 	}
 
+	vector<short> leftxn;
+	vector<short> rightxn;
+
 	for(int i = 0; i < (int) leftrn.size(); i++) {
 		if(i < 2){
-			xn.push_back(leftrn[i]);
-			xn.push_back(rightrn[i]);
+			leftxn.push_back(leftrn[i]);
 			continue;
 		}
-		xn.push_back(leftrn[i] + 2*leftrn[i-1] - leftrn[i-2]);
-		xn.push_back(rightrn[i] + 2*rightrn[i-1] - rightrn[i-2]);
+		leftxn.push_back(leftrn[i] + 2*leftxn[i-1] - leftxn[i-2]);
+		/*if(i == 159064)
+			cout << "i = " << i << "," << leftrn[i] << "," << leftxn[i-1] << "," << leftxn[i-2] << ":" << leftxn[i] << "\n";
+*/	}
+
+	for(int i = 0; i < (int) rightrn.size(); i++) {
+		if(i < 2){
+			rightxn.push_back(rightrn[i]);
+			continue;
+		}
+		rightxn.push_back(rightrn[i] + 2*rightxn[i-1] - rightxn[i-2]);
+	}
+
+	for(int i = 0; i < (int) leftxn.size(); i++){
+		xn.push_back(leftxn[i]);
+		xn.push_back(rightxn[i]);
 	}
 }
 
