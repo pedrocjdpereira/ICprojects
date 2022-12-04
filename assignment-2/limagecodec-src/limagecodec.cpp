@@ -4,15 +4,6 @@
 using namespace std;
 using namespace cv;
 
-
-int main(int argc, char *argv[]) {
-	LosslessImageCodec lic{argv[argc-1], 'e'};
-	lic.encode("test_enc.lic");
-
-	LosslessImageCodec lic2{"test_enc.lic", 'd'};
-	lic2.decode("test_dec.ppm");
-}
-
 LosslessImageCodec::LosslessImageCodec(){}
 
 LosslessImageCodec::LosslessImageCodec(const char *fname, char mode) {
@@ -84,6 +75,8 @@ void LosslessImageCodec::decode(const char *fname) {
 	/* Close origin bitstream */
 	ori.close();
 
+	
+
 	/* Mats for each color channel */
 	Mat r = restore(r_res, rows, columns),
 		g = restore(g_res, rows, columns),
@@ -91,11 +84,12 @@ void LosslessImageCodec::decode(const char *fname) {
 
 	/* Put together the 3 mats */
 	image = Mat{rows,columns,CV_8UC3,Scalar(0,0,0)};
-	for(int i = 0; i < columns; i++) {
-		for(int j = 0; j < rows; j++) {
+	for(int i = 0; i < rows; i++) {
+		for(int j = 0; j < columns; j++) {
 			image.at<Vec3b>(i,j) = Vec3b(b.at<uchar>(i,j), g.at<uchar>(i,j), r.at<uchar>(i,j));
 		}
 	}
+
 
 	/* Write mat to file */
 	imwrite(fname, image);
@@ -117,7 +111,6 @@ Mat LosslessImageCodec::restore(vector<int> res, int rows, int columns) {
 		for(int j = 0; j < columns; j++) {
 			if(j == 0) {
 				channel.at<uchar>(i,j) = (uchar)res.at(counter++);
-				cout << (int)channel.at<uchar>(i,j) << endl;
 			} else {
 				a = (int)channel.at<uchar>(i,j-1);
 				b = (int)channel.at<uchar>(i-1,j);
@@ -229,42 +222,3 @@ int LosslessImageCodec::readVal(int size /*= 0*/, bool encoded /*= true*/) {
 		return gol.decode(bts);
 	}
 }
-/*
-204
-205
-201
-202
-199
-197
-195
-193
-198
-200
-200
-195
-202
-203
-206
-199
-206
-202
-196
-*/
-
-/*
-0
-0
-255
-255
-251
-253
-251
-2
-0
-253
-254
-254
-253
-2
-1
-*/

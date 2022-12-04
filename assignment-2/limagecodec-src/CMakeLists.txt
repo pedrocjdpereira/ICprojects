@@ -13,5 +13,5 @@ SET (CMAKE_CXX_FLAGS_DEBUG "-g3 -fsanitize=address")
 SET (BASE_DIR ${CMAKE_SOURCE_DIR} )
 SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BASE_DIR}/../limagecodec-bin)
 
-add_executable(limagecodec limagecodec.cpp)
-target_link_libraries(limagecodec ${OpenCV_LIBS})
+add_executable(test_codec main.cpp)
+target_link_libraries(test_codec ${OpenCV_LIBS})
