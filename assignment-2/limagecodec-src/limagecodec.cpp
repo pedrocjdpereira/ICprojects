@@ -37,7 +37,9 @@ void LosslessImageCodec::encode(const char *fname) {
 				b_res = residuals(b);
 	
 	/* TODO: Get best value of m */
-	int m = 9;
+	int m = calculateM(r_res, g_res, b_res);
+	cout << m;
+
 	gol.setM(m);
 
 	/* Store m */
@@ -221,4 +223,26 @@ int LosslessImageCodec::readVal(int size /*= 0*/, bool encoded /*= true*/) {
 		bts = bts + aux + tmp;
 		return gol.decode(bts);
 	}
+}
+
+int LosslessImageCodec::calculateM(vector<int> r_res, vector<int> g_res, vector<int> b_res){
+	double avg = 0;
+	for(int i = 0; i < (int) r_res.size(); i++){
+		if(r_res[i] < 0) avg += 2*(-r_res[i]) - 1;
+		else avg += 2*r_res[i];
+	}
+	for(int i = 0; i < (int) g_res.size(); i++){
+		if(g_res[i] < 0) avg += 2*(-g_res[i]) - 1;
+		else avg += 2*g_res[i];
+	}
+	for(int i = 0; i < (int) b_res.size(); i++){
+		if(b_res[i] < 0) avg += 2*(-b_res[i]) - 1;
+		else avg += 2*b_res[i];
+	}
+
+	int totalSize = (int) r_res.size() + g_res.size() + b_res.size();
+	avg = avg/totalSize;
+
+    int m = (int) ceil(-1/(log2(avg/(avg+1))));
+	return m;
 }

@@ -98,6 +98,16 @@ class LosslessImageCodec {
 		 * @return Mat 
 		 */
 		Mat restore(vector<int> res, int rows, int columns);
+
+		/**
+		 * @brief 
+		 * 
+		 * @param r_res 
+		 * @param g_res 
+		 * @param b_res 
+		 * @return int 
+		 */
+		int calculateM(vector<int> r_res, vector<int> g_res, vector<int> b_res);
 };
 
 #endif // LIMAGECODEC_H
