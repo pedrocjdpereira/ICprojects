@@ -134,14 +134,14 @@ void AudioCodec::compress() {
 	encodeMandPred(m, predictorN);
 	encodeHeader(info.frames, info.samplerate, info.format, info.channels, lossy);
 
-	//encodeShamt
-
 	for(int i = 0; i < (int) rn.size(); i++){
 		string s = g.encode(rn[i]);
 		char c[s.length()];
 		stringtochar(s, c);
 		file.writeNBits(c, s.length());
 	}
+
+	cout << rn[rn.size()-1];
 }
 
 void AudioCodec::predictorLossless(){
@@ -257,6 +257,8 @@ void AudioCodec::decompress(){
 			rn[i] = ((rn[i] >> 1));
 		}
 	}
+
+	cout << rn[rn.size()-1];
 	
 	decompPredictorLossless();
 
