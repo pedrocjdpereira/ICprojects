@@ -15,7 +15,7 @@ Golomb::Golomb(unsigned m) {
 	this->b = (unsigned)ceil(log2(m));
 }
 
-string Golomb::encoder(int num) {
+string Golomb::encode(int num) {
 	/* Check if m is initialized */
 	if(m<=0) throw runtime_error("m is not initialized!");
 
@@ -44,12 +44,12 @@ string Golomb::encoder(int num) {
 
 	/* Obtain final representation of num */
 	string res = r_truncBin;
-	if(res.length() < r_numBits) res = '0' + res;
+	while(res.length() < r_numBits) res = '0' + res;
 	res = q_una + res;
 	return res;
 }
 
-int Golomb::decoder(string bits) {
+int Golomb::decode(string bits) {
 	/* Check if m is initialized */
 	if(m<=0) throw runtime_error("m is not initialized!");
 
@@ -101,4 +101,12 @@ unsigned Golomb::bin2uns(string bin) {
 
 unsigned Golomb::una2uns(string una) {
 	return una.length() - 1;
+}
+
+unsigned Golomb::getM() {
+	return m;
+}
+
+unsigned Golomb::getB() {
+	return b;
 }

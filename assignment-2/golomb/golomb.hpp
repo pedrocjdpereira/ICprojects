@@ -39,7 +39,7 @@ class Golomb {
 		 * @param num integer to be enconded
 		 * @return string
 		 */
-		string encoder(int num);
+		string encode(int num);
 		
 		/**
 		 * @brief Decode a binary string obtained using golomb coding 
@@ -47,7 +47,7 @@ class Golomb {
 		 * @param bits string of bits to be decoded
 		 * @return int 
 		 */
-		int decoder(string bits);
+		int decode(string bits);
 
 		/**
 		 * @brief Set the value of m
@@ -87,6 +87,20 @@ class Golomb {
 		 * @return unsigned
 		 */
 		unsigned una2uns(string una);
+
+		/**
+		 * @brief 
+		 * 
+		 * @return unsigned 
+		 */
+		unsigned getM();
+
+		/**
+		 * @brief 
+		 * 
+		 * @return unsigned 
+		 */
+		unsigned getB();
 };
 
 #endif // GOLOMB_H
