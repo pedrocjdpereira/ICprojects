@@ -41,7 +41,7 @@ void stringtochar(string s, char* c){
 int main(int argc, char *argv[]) {
 
 	if(argc < 4) {
-		cerr << "Usage: img_cpy <option> <original file> <new file>\n";
+		cerr << "Usage: laudiocodec <option> <original file> <new file>\n";
 		cerr << "Options:\n";
 		cerr << "c - compress\n";
 		cerr << "d - decompress\n";
