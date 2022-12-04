@@ -42,20 +42,19 @@ int main(int argc, char *argv[]) {
 
 	if(argc < 4) {
 		cerr << "Usage: img_cpy <option> <original file> <new file>\n";
-		cerr << "Options\n";
+		cerr << "Options:\n";
 		cerr << "c - compress\n";
 		cerr << "d - decompress\n";
-
 		exit(1);
 	}
-	char* mode = argv[argc-3];
+	char* option = argv[argc-3];
 	const char* InFileName = argv[argc-2];
 	const char* OutFileName = argv[argc-1];
 
 
-	AudioCodec ac = AudioCodec(InFileName, OutFileName, *mode);
+	AudioCodec ac = AudioCodec(InFileName, OutFileName, *option);
 
-	if(*mode == 'c'){
+	if(*option == 'c'){
 		ac.compress();
 	}
 	else{
@@ -65,17 +64,19 @@ int main(int argc, char *argv[]) {
 
 AudioCodec::AudioCodec(){}
 
-AudioCodec::AudioCodec(const char* infname, const char* outfname, char mod){
-	mode = mod;
-	
+AudioCodec::AudioCodec(const char* infname, const char* outfname, char opt){
+	mode = opt;
+
 	if(mode == 'd'){
-		predictorN = 2;
 		file = BitStream(infname, 'r');
 		fileOutName = outfname;
 	}
 	else if(mode == 'c'){
-		predictorN = 2;
-
+		cout << "Which do you wish to perform?\n";
+		cout << "Lossless compression (0)\n";
+		cout << "Lossy compression (1)\n";
+		cout << "Enter your option:";
+		cin >> lossy;
 		SNDFILE* fileIn; 
 		short s[2];
 
@@ -89,8 +90,10 @@ AudioCodec::AudioCodec(const char* infname, const char* outfname, char mod){
 		int framesRead;
 		do{
 			framesRead = sf_readf_short(fileIn, s, 1);
-			xn.push_back(s[0]);
-			xn.push_back(s[1]);
+			if(framesRead > 0){
+				xn.push_back(s[0]);
+				xn.push_back(s[1]);
+			}
 		}
 		while(framesRead > 0);
 
@@ -107,6 +110,15 @@ void AudioCodec::compress() {
 	}
 
 	predictorLossless();
+
+	if(lossy == 1){
+		cout << "Introduce the amount of bits to be eliminated: ";
+		int reduceBits;
+		cin >> reduceBits;
+		for(int i = 0; i < (int) rn.size(); i++){
+			rn[i] = ((rn[i] >> reduceBits));
+		}
+	}
 	
 	double avg = 0;
     for(int i = 0; i < (int) rn.size(); i++) {
@@ -116,23 +128,19 @@ void AudioCodec::compress() {
     avg = avg/rn.size();
 
     m = (int) ceil(-1/(log2(avg/(avg+1))));
-	//cout << m;
 
 	Golomb g = Golomb(m);
 
-	encodeM(m);
-	encodeHeader(info.frames, info.samplerate, info.format, info.channels, 0);
+	encodeMandPred(m, predictorN);
+	encodeHeader(info.frames, info.samplerate, info.format, info.channels, lossy);
 
 	//encodeShamt
 
 	for(int i = 0; i < (int) rn.size(); i++){
-		string s = g.encoder(rn[i]);
+		string s = g.encode(rn[i]);
 		char c[s.length()];
 		stringtochar(s, c);
 		file.writeNBits(c, s.length());
-		/*if(i > 300000 & i < 318131){
-			cout << "i = " << i << "," << xn[i] << "," << rn[i] << "," << s << "\n";
-		}*/
 	}
 }
 
@@ -149,14 +157,73 @@ void AudioCodec::predictorLossless(){
 		}
 	}
 	
-    for(int i = 0; i < (int) leftxn.size(); i++) {
-		if(i < 2){
-			rn.push_back(leftxn[i] - 0);
-			rn.push_back(rightxn[i] - 0);
+	double avg1 = 0;
+	double avg2 = 0;
+	double avg3 = 0;
+	vector<short> rn1;
+	vector<short> rn2;
+	vector<short> rn3;
+
+	for(int i = 0; i < (int) leftxn.size(); i++) {
+		if(i < 1){
+			int s[2] = {leftxn[i], rightxn[i]};
+			rn1.push_back(s[0]);
+			rn1.push_back(s[1]);
+			avg1 += s[0] + s[1];
 			continue;
 		}
-		rn.push_back(leftxn[i] - 2*leftxn[i-1] + leftxn[i-2]);
-		rn.push_back(rightxn[i] - 2*rightxn[i-1] + rightxn[i-2]);
+		int s[2] = {leftxn[i] - leftxn[i-1], 
+						rightxn[i] - rightxn[i-1]};
+		rn1.push_back(s[0]);
+		rn1.push_back(s[1]);
+		avg1 += s[0] + s[1];
+	}
+
+    for(int i = 0; i < (int) leftxn.size(); i++) {
+		if(i < 2){
+			int s[2] = {leftxn[i], rightxn[i]};
+			rn2.push_back(s[0]);
+			rn2.push_back(s[1]);
+			avg2 += s[0] + s[1];
+			continue;
+		}
+		int s[2] = {leftxn[i] - 2*leftxn[i-1] + leftxn[i-2], 
+						rightxn[i] - 2*rightxn[i-1] + rightxn[i-2]};
+		rn2.push_back(s[0]);
+		rn2.push_back(s[1]);
+		avg2 += s[0] + s[1];
+ 	}
+
+	for(int i = 0; i < (int) leftxn.size(); i++) {
+		if(i < 3){
+			int s[2] = {leftxn[i], rightxn[i]};
+			rn3.push_back(s[0]);
+			rn3.push_back(s[1]);
+			avg3 += s[0] + s[1];
+			continue;
+		}
+		int s[2] = {leftxn[i] - 3*leftxn[i-1] + 3*leftxn[i-2] - leftxn[i-3],
+						rightxn[i] - 3*rightxn[i-1] + 3*rightxn[i-2] - rightxn[i-3]};
+		rn3.push_back(s[0]);
+		rn3.push_back(s[1]);
+		avg3 += s[0] + s[1];
+	}
+
+	avg1 = abs(avg1/xn.size());
+	avg2 = abs(avg2/xn.size());
+	avg3 = abs(avg3/xn.size());
+
+	if( (avg1 < avg2) & (avg1 < avg3) ){
+		predictorN = 1;
+		rn = rn1;
+	}
+	else if( (avg2 < avg1) & (avg2 < avg3) ){
+		predictorN = 2;
+		rn = rn2;
+	}
+	else if( (avg3 < avg1) & (avg3 < avg2) ){
+		predictorN = 3;
+		rn = rn3;
 	}
 }
 
@@ -166,9 +233,10 @@ void AudioCodec::decompress(){
 		exit(1);
 	}
 
-	m = decodeM();
-	//cout << m;
+	decodeMandPred();
+
 	int b = (int) ceil(log2(m));
+
 	int header[5];
 	decodeHeader(header);
 	int lossy = header[0];
@@ -179,29 +247,27 @@ void AudioCodec::decompress(){
 
 	Golomb g = Golomb(m);
 
-	vector<string> sArray;
-
 	for(int i = 0; i < frames*channels; i++){
 		string s = getCodeword(m, b);
-		rn.push_back(g.decoder(s));
-		sArray.push_back(s);
+		rn.push_back(g.decode(s));
+	}
+
+	if(lossy == 1){
+		for(int i = 0; i < (int) rn.size(); i++){
+			rn[i] = ((rn[i] >> 1));
+		}
 	}
 	
 	decompPredictorLossless();
 
-	/*for(int i = 0; i < frames*channels; i++){
-		if(i > 318110 & i <= 318130){
-			cout << "i = " << i << "," << xn[i] << "," << rn[i] << "," << sArray[i] << "\n";
-		}
-	}*/
+	SF_INFO fileOutInfo;
+	fileOutInfo.frames = frames;
+	fileOutInfo.samplerate = samplerate;
+	fileOutInfo.format = format;
+	fileOutInfo.channels = channels;
 
-	info.frames = frames;
-	info.samplerate = samplerate;
-	info.format = format;
-	info.channels = channels;
-
-	SNDFILE* decompFile = sf_open(fileOutName, SFM_WRITE, &info);
-	sf_writef_short(decompFile, &xn[0], xn.size());
+	SNDFILE* decompFile = sf_open(fileOutName, SFM_WRITE, &fileOutInfo);
+	sf_write_raw(decompFile, &xn[0], xn.size()*2);
 	sf_write_sync(decompFile);
 	sf_close(decompFile);
 }
@@ -222,22 +288,38 @@ void AudioCodec::decompPredictorLossless(){
 	vector<short> leftxn;
 	vector<short> rightxn;
 
-	for(int i = 0; i < (int) leftrn.size(); i++) {
-		if(i < 2){
-			leftxn.push_back(leftrn[i]);
-			continue;
+	if(predictorN == 1){
+		for(int i = 0; i < (int) leftrn.size(); i++) {
+			if(i < 1){
+				leftxn.push_back(leftrn[i]);
+				rightxn.push_back(rightrn[i]);
+				continue;
+			}
+			leftxn.push_back(leftrn[i] + leftxn[i-1]);
+			rightxn.push_back(rightrn[i] + rightxn[i-1]);
 		}
-		leftxn.push_back(leftrn[i] + 2*leftxn[i-1] - leftxn[i-2]);
-		/*if(i == 159064)
-			cout << "i = " << i << "," << leftrn[i] << "," << leftxn[i-1] << "," << leftxn[i-2] << ":" << leftxn[i] << "\n";
-*/	}
-
-	for(int i = 0; i < (int) rightrn.size(); i++) {
-		if(i < 2){
-			rightxn.push_back(rightrn[i]);
-			continue;
+	}
+	else if(predictorN == 2){
+		for(int i = 0; i < (int) leftrn.size(); i++) {
+			if(i < 2){
+				leftxn.push_back(leftrn[i]);
+				rightxn.push_back(rightrn[i]);
+				continue;
+			}
+			leftxn.push_back(leftrn[i] + 2*leftxn[i-1] - leftxn[i-2]);
+			rightxn.push_back(rightrn[i] + 2*rightxn[i-1] - rightxn[i-2]);
 		}
-		rightxn.push_back(rightrn[i] + 2*rightxn[i-1] - rightxn[i-2]);
+	}
+	else{
+		for(int i = 0; i < (int) leftrn.size(); i++) {
+			if(i < 3){
+				leftxn.push_back(leftrn[i]);
+				rightxn.push_back(rightrn[i]);
+				continue;
+			}
+			leftxn.push_back(leftrn[i] + 3*leftxn[i-1] - 3*leftxn[i-2] + leftxn[i-3]);
+			rightxn.push_back(rightrn[i] + 3*rightxn[i-1] - 3*rightxn[i-2] + leftxn[i-3]);
+		}
 	}
 
 	for(int i = 0; i < (int) leftxn.size(); i++){
@@ -288,17 +370,22 @@ string AudioCodec::getCodeword(int m, int b){
 	return q + r;
 }
 
-void AudioCodec::encodeM(int m){
+void AudioCodec::encodeMandPred(int m, int predictorN){
 	char binM[32];
 	intToBin(binM, m, 32);
 	file.writeNBits(binM, 32);
+	char binPred[2];
+	intToBin(binPred, predictorN, 2);
+	file.writeNBits(binPred, 2);
 }
 
-int AudioCodec::decodeM(){
+void AudioCodec::decodeMandPred(){
 	char binM[32];
 	file.readNBits(binM, 32);
-	int m = binToInt(binM, 32);
-	return m;
+	m = binToInt(binM, 32);
+	char binPred[2];
+	file.readNBits(binPred, 2);
+	predictorN = binToInt(binPred, 2);
 }
 
 void AudioCodec::encodeHeader(int frames, int samplerate, int format, int channels, int lossy){

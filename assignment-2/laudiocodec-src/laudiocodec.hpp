@@ -16,6 +16,7 @@ class AudioCodec{
 		char mode;
 		int m;
         int predictorN;
+		int lossy;
         vector<short> xn;
 		vector<short> rn;
 
@@ -34,9 +35,9 @@ class AudioCodec{
 
 		string getCodeword(int m, int b);
 		
-		void encodeM(int m);
+		void encodeMandPred(int m, int Pred);
 
-		int decodeM();
+		void decodeMandPred();
 
 		void encodeHeader(int frames, int samplerate, int format, int channels, int lossy);
 
