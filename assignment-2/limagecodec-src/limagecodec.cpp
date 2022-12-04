@@ -38,7 +38,6 @@ void LosslessImageCodec::encode(const char *fname) {
 	
 	/* TODO: Get best value of m */
 	int m = calculateM(r_res, g_res, b_res);
-	cout << m;
 
 	gol.setM(m);
 
@@ -77,8 +76,6 @@ void LosslessImageCodec::decode(const char *fname) {
 	/* Close origin bitstream */
 	ori.close();
 
-	
-
 	/* Mats for each color channel */
 	Mat r = restore(r_res, rows, columns),
 		g = restore(g_res, rows, columns),
@@ -91,7 +88,6 @@ void LosslessImageCodec::decode(const char *fname) {
 			image.at<Vec3b>(i,j) = Vec3b(b.at<uchar>(i,j), g.at<uchar>(i,j), r.at<uchar>(i,j));
 		}
 	}
-
 
 	/* Write mat to file */
 	imwrite(fname, image);
