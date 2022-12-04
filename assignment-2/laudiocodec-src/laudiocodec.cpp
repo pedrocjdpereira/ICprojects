@@ -140,8 +140,6 @@ void AudioCodec::compress() {
 		stringtochar(s, c);
 		file.writeNBits(c, s.length());
 	}
-
-	cout << rn[rn.size()-1];
 }
 
 void AudioCodec::predictorLossless(){
@@ -257,8 +255,6 @@ void AudioCodec::decompress(){
 			rn[i] = ((rn[i] >> 1));
 		}
 	}
-
-	cout << rn[rn.size()-1];
 	
 	decompPredictorLossless();
 
