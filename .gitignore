@@ -14,5 +14,7 @@
 assignment-1/snd-example-src/copy.wav
 # output file for wav_dct
 assignment-1/snd-example-src/out.wav
-# ignore ppm files in assignment2/imgmanipulation-src
+# ignore ppm files in assignment-2/imgmanipulation-src
 assignment-2/imgmanipulation-src/*.ppm
+# ignore bin dir in assignment-3
+assignment-3/bin/
