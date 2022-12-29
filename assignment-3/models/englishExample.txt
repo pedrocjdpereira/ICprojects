@@ -1,0 +1,5 @@
+Hi this is an example for a program.
+Some random words will be displayed here.
+More random words for this amazing work.
+We hope this works in the end.
+Goodbye and see you next time.

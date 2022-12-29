@@ -7,37 +7,36 @@
 
 using namespace std;
 
-/*
-int main(void){
-	cout << "Hello!\n";
 
-	int k = 6;
-	double alfa = 10;
-	map<string,map<char,int>> model;
-	const char* fileInName = "models/OsLusiadas.txt";
-	const char* fileOutName = "models/OsLusiadas_model.txt";
-	const char* exampleTextFile = "models/example.txt";
+// int main(void){
+// 	cout << "Hello!\n";
 
+// 	int k = 6;
+// 	double alfa = 10;
+// 	map<string,map<char,int>> model;
+// 	const char* fileInName = "models/OsLusiadas.txt";
+// 	const char* fileOutName = "models/OsLusiadas_model.txt";
+// 	const char* exampleTextFile = "models/example.txt";
 
-	fcm obj = fcm(k, alfa);
+// 	fcm obj = fcm(k, alfa);
 
-	cout << "Building model...\n";
-	obj.modelBuilder(model, fileInName, fileOutName);
+// 	cout << "Building model...\n";
+// 	obj.modelBuilder(model, fileInName, fileOutName);
 
-	map<string,map<char,int>> modelCopy;
-	cout << "Loading model...\n";
-	obj.modelLoader(modelCopy, fileOutName);
-	cout << "Are they equal? -> " << (equal(model.begin(), model.end(), modelCopy.begin()) == 1 ? "Yes" : "No") << "\n";
+// 	map<string,map<char,int>> modelCopy;
+// 	cout << "Loading model...\n";
+// 	obj.modelLoader(modelCopy, fileOutName);
+// 	cout << "Are they equal? -> " << (equal(model.begin(), model.end(), modelCopy.begin()) == 1 ? "Yes" : "No") << "\n";
 	
-	obj.calcEntropy(model);
-	cout << "Entropy of the model: " << obj.modelEntropy << "\n";
+// 	obj.calcEntropy(model);
+// 	cout << "Entropy of the model: " << obj.modelEntropy << "\n";
 
-	obj.estimate(model,exampleTextFile);
-	cout << "Entropy of the example text: " << obj.textEntropy << "\n";
-	cout << "Num of chars: " << obj.numChars << "\n";
-	return 0;
-}
-*/
+// 	obj.estimateEntropy(model,exampleTextFile);
+// 	cout << "Entropy of the example text: " << obj.textEntropy << "\n";
+// 	cout << "Num of chars: " << obj.numChars << "\n";
+// 	return 0;
+// }
+
 
 void readChar(ifstream &InFile, char* c){
 	char aux;

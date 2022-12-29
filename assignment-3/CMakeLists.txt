@@ -21,5 +21,5 @@ TARGET_LINK_LIBRARIES(lang)
 ADD_EXECUTABLE(findlang src/findlang.cpp)
 TARGET_LINK_LIBRARIES(findlang)
 
-ADD_EXECUTABLE(locatelang src/locatelang.cpp)
-TARGET_LINK_LIBRARIES(locatelang)
+# ADD_EXECUTABLE(locatelang src/locatelang.cpp)
+# TARGET_LINK_LIBRARIES(locatelang)
