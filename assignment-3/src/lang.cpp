@@ -12,8 +12,8 @@ int main(int argc , char** argv){
 		return 0;
 	}
 
-	int k =-1;
-	int a= -1;
+	int k =6;
+	int a= 1;
 	char option = 'o';
 	string fileOut;
 
@@ -31,13 +31,13 @@ int main(int argc , char** argv){
 			return 0;
 		}
 		
-		while (a<=0)
+		if (a<=1)
 		{
 			cout << "Choose alpha value: ";
 			cin >> a;
 		}
 
-		while (k <=0)
+		if (k <=6)
 		{
 			cout << "Choose context order value: ";
 			cin >> k;

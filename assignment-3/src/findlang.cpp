@@ -75,7 +75,9 @@ int main(int argc , char** argv){
 		}
 		cout <<"Loaded successfully" <<endl;
 	}
-	cout << "Text was written in: " <<language <<endl;
+	size_t pos = language.find("s/");
+	string sol = language.substr(pos +2);
+	cout << "Text was written in: " <<sol <<endl;
 	return 0;
 }
 	
